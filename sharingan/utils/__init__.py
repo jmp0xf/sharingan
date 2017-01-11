@@ -7,7 +7,7 @@ from parsel.utils import extract_regex
 
 def flatten(elems, max_depth=None):
     # REFACTOR 只考虑包裹括号的情况
-    if max_depth < 1:
+    if max_depth is not None and max_depth < 1:
         return elems
     add_parenthesis = False
     if isinstance(elems, tuple):
