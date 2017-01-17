@@ -33,10 +33,10 @@ class FragmentSpider(Spider):
     fragment_pipeline = None
     start_url = None
     start_item = None
-    cookies = None # dict
-    get_cookies = None # 自定义无参数方法
-    login_url = None # 字符串
-    login_form = None # dict
+    cookies = None  # dict
+    get_cookies = None  # 自定义无参数方法
+    login_url = None  # 字符串
+    login_form = None  # dict
 
     def __init__(self, *args, **kwargs):
         super(FragmentSpider, self).__init__(*args, **kwargs)
@@ -51,8 +51,8 @@ class FragmentSpider(Spider):
     def login(self):
         if self.login_url:
             return FormRequest(self.login_url,
-                                   formdata=self.login_form,
-                                   callback=self.start_url_requests)
+                               formdata=self.login_form,
+                               callback=self.start_url_requests)
         return None
 
     def get_cookies(self):
