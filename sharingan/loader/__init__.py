@@ -49,8 +49,7 @@ class FragmentItemLoader(ItemLoader):
         self._check_selector_method()
         csss = arg_to_iter(csss)
         ret = self._extract_hier_csss(self.selector, csss, **kw)
-        # ret = filter_regex(kw.get('regex'), (self.selector.css(csss)))
-        if not flatten(ret):
+        if ret is None or not flatten(ret):
             return None
         else:
             return ret
