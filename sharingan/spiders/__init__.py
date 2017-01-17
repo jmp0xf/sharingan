@@ -11,6 +11,7 @@ from scrapy.spiders import Spider
 
 from ..item import is_load_list, copy_item
 from ..loader import FragmentItemLoader
+from ..selector import Selector
 
 
 # Scrapy会读取Spider的类变量作为设置 所以是用元类修改设置
@@ -133,7 +134,7 @@ class FragmentSpider(Spider):
     # 当前文档进行子文档parse或者进行url的跟进
     def sub_parse_or_follow(self, item, request_stack, response, root_item, selector=None):
         if selector == None:
-            selector = response.selector
+            selector = Selector(response=response)
         for field_name, field in item.fields.items():
             item_cls = field.get('item_cls')
             load_list = is_load_list(field)
@@ -162,7 +163,10 @@ class FragmentSpider(Spider):
                         sub_selectors = selector.xpath(FragmentItemLoader.force_rel_xpath(sub_sel))
                     else:
                         sub_sel = item.fields[field_name].get('css')
-                        sub_selectors = selector.css(sub_sel)
+                        # 不支持多余的css_root初始化参数
+                        # sub_selectors = [Selector(response=response, css_root=sub_selector_html) for sub_selector_html in selector.css(sub_sel)]
+                        # 使用dummy selectors让loader自动生成selector 但注意此时生成的selector使用的xpath选择器将带又多余的html标签(css选择器不受影响)
+                        sub_selectors = [None] * len(selector.css(sub_sel))
                     for index, fragment in enumerate(fragments):
                         sub_response = response.replace(body=fragment)
                         sub_selector = sub_selectors[index]

@@ -39,21 +39,17 @@ class FragmentItemLoader(ItemLoader):
         csss = arg_to_iter(csss)
         if len(csss) > 1:
             child_csss = csss[1:]
-            # handle relative csss
-            # ref: https://doc.scrapy.org/en/master/topics/selectors.html#working-with-relative-xpaths
-            for index, css in enumerate(child_csss):
-                if css.startswith(' '):
-                    css = ' ' + css
-                    child_csss[index] = css
-            return [self._extract_hier_csss(child_node, child_csss, **kw) for child_node in node.css(csss[0])]
+            return [self._extract_hier_csss(Selector(text=child_node_html), child_csss, **kw) for child_node_html in
+                    node.css(csss[0])]
         else:
-            return filter_regex(kw.get('regex'), node.css(csss[0]).extract())
+            return filter_regex(kw.get('regex'), node.css(csss[0]))
 
     # TODO 由于scrapy自带的css与xpath等价 没有实操价值 改为PySpider的Pyquery比较有意义
     def _get_cssvalues(self, csss, **kw):
         self._check_selector_method()
         csss = arg_to_iter(csss)
         ret = self._extract_hier_csss(self.selector, csss, **kw)
+        # ret = filter_regex(kw.get('regex'), (self.selector.css(csss)))
         if not flatten(ret):
             return None
         else:
