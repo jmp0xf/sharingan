@@ -54,6 +54,13 @@ class TestFeed(unittest.TestCase):
         feed(item, 'd', output_pack, 'e__f__g__h')
         self.assertEqual(item['d'], [1, 2, 3, 4, 5, 6])
 
+        feed(item, 'e__f__g__h', output_pack, 'e__f__g__h')
+        feed(item, 'e__h', output_pack, 'e__f__g__h')
+        for i, sub_item in enumerate(item['e']):
+            self.assertEqual(isinstance(sub_item, Item), True)
+            for k, sub_sub_item in enumerate(sub_item['h']):
+                self.assertEqual(sub_sub_item, i * 3 + k + 1)
+
     def test_drop_item_in_lists(self):
         item = Item()
         output_pack = self.output_pack
