@@ -1,5 +1,8 @@
 import unittest
 
+from scrapy.exceptions import DropItem
+
+from sharingan.exceptions import DropFragment
 from sharingan.pipelines import FragmentPipeline
 
 
@@ -20,6 +23,19 @@ def append_elem(elem):
 def duplicate(elem):
     yield elem
     yield elem
+
+
+def raise_drop_fragment(elem):
+    if elem == 2:
+        raise DropFragment()
+    return elem
+
+
+def raise_drop_item(elem):
+    if elem == 2:
+        raise DropItem()
+    return elem
+
 
 class TestApplyMethod(unittest.TestCase):
     def setUp(self):
@@ -44,6 +60,15 @@ class TestApplyMethod(unittest.TestCase):
     def test_duplicate(self):
         self.assertEqual(self.pipeline.apply_method(duplicate, ([({'elem': 1},), ({'elem': 2},)],)),
                          ([(1,), (1,), (2,), (2,)],))
+
+    def test_drop_fragment(self):
+        self.assertEqual(self.pipeline.apply_method(raise_drop_fragment, ([({'elem': 1},), ({'elem': 2},)],)),
+                         ([(1,)],))
+
+    def test_drop_item(self):
+        ret = self.pipeline.apply_method(raise_drop_item, ([({'elem': 1},), ({'elem': 2},)],))
+        self.assertTrue(isinstance(ret[0][1][0], DropItem))
+
 
 if __name__ == '__main__':
     unittest.main()
