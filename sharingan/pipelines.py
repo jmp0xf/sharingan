@@ -16,11 +16,12 @@ class FragmentPipeline(object):
         if args_pack is None:
             ret = None
         # 如果是已经打包好的参数 传入处理方法计算出产出值
-        elif isinstance(args_pack, dict):
+        elif isinstance(args_pack, tuple) and isinstance(args_pack[0], dict):
             try:
-                ret = method(**args_pack)
+                ret = method(**args_pack[0])
             except DropItem:
                 ret = DropItem()
+            ret = (ret,)
         else:
             ret = []
             for sub_args_pack in args_pack:
@@ -28,8 +29,8 @@ class FragmentPipeline(object):
                     result = self.apply_method(method, sub_args_pack)
                 except DropFragment:
                     continue
-                if isinstance(result, types.GeneratorType):
-                    ret.extend(list(result))
+                if isinstance(result[0], types.GeneratorType):
+                    ret.extend(map(lambda elem: (elem,), result[0]))
                 else:
                     ret.append(result)
             if isinstance(args_pack, tuple):
